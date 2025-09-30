@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
 
 const ListingsPage = () => {
   const [listings, setListings] = useState([]);
@@ -21,24 +22,47 @@ const ListingsPage = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="text-center text-gray-500 mt-10">Loading...</div>;
   }
 
   return (
-    <div>
-      <h2>Active Listings</h2>
-      {listings.map(listing => (
-        <div key={listing.id}>
-          <h3>Listing for Property ID: {listing.property_id}</h3>
-          <p>Published At: {new Date(listing.published_at).toLocaleString()}</p>
-          <p>Visibility: {listing.visibility}</p>
-          <div>
-            {listing.media_urls.map((url, index) => (
-              <img key={index} src={url} alt={`Listing ${listing.id}`} style={{ width: '200px', margin: '5px' }} />
-            ))}
-          </div>
-        </div>
-      ))}
+    <div className="space-y-8">
+      <h2 className="text-3xl font-bold text-gray-800 text-center">Active Listings</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {listings.length > 0 ? (
+          listings.map(listing => (
+            <div key={listing.id} className="bg-white rounded-lg shadow-md overflow-hidden transform hover:-translate-y-1 transition-transform duration-300">
+              {listing.media_urls.length > 0 && (
+                <img
+                  src={listing.media_urls[0]}
+                  alt={`Listing for Property ID ${listing.property_id}`}
+                  className="w-full h-48 object-cover"
+                />
+              )}
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-800">
+                  <Link to={`/properties/${listing.property_id}`} className="hover:underline">
+                    Property ID: {listing.property_id}
+                  </Link>
+                </h3>
+                <p className="text-gray-600 mt-2">
+                  Published: {new Date(listing.published_at).toLocaleDateString()}
+                </p>
+                <div className="mt-4">
+                  <span className="inline-block bg-gray-200 text-gray-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded-full">
+                    {listing.visibility}
+                  </span>
+                </div>
+                <Link to={`/properties/${listing.property_id}`} className="inline-block mt-4 text-blue-500 hover:text-blue-700 font-semibold">
+                  View Property &rarr;
+                </Link>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="col-span-full text-center text-gray-500">No active listings found.</p>
+        )}
+      </div>
     </div>
   );
 };

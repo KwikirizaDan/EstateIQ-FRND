@@ -22,19 +22,37 @@ const ConversationsPage = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="text-center text-gray-500 mt-10">Loading...</div>;
   }
 
   return (
-    <div>
-      <h2>My Conversations</h2>
-      {conversations.map(convo => (
-        <div key={convo.id}>
-          <p>Conversation about deal: {convo.deal_id}</p>
-          <p>Participants: {convo.participants.join(', ')}</p>
-          <Link to={`/messages/${convo.id}`}>View Messages</Link>
+    <div className="bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto">
+      <h2 className="text-3xl font-bold text-gray-800 mb-6">My Conversations</h2>
+      {conversations.length > 0 ? (
+        <div className="space-y-6">
+          {conversations.map(convo => (
+            <div key={convo.id} className="p-6 border rounded-lg hover:shadow-lg transition-shadow duration-300 flex justify-between items-center">
+              <div>
+                <p className="text-sm text-gray-500">Deal ID</p>
+                <Link to={`/deals/${convo.deal_id}`} className="text-lg font-semibold text-blue-600 hover:underline">
+                  {convo.deal_id}
+                </Link>
+                <p className="text-sm text-gray-600 mt-2">
+                  <span className="font-semibold">Participants:</span> {convo.participants.join(', ')}
+                </p>
+              </div>
+              <Link
+                to={`/messages/${convo.id}`}
+                className="inline-block py-2 px-4 font-bold text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                View Messages
+              </Link>
+            </div>
+          ))}
         </div>
-      ))}
+      ) : (
+        <p className="text-center py-10 text-gray-500">You have no active conversations.</p>
+      )}
     </div>
   );
 };

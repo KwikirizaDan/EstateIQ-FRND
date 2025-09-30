@@ -5,22 +5,34 @@ import api from '../services/api';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [authTokens, setAuthTokens] = useState(() => localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null);
-  const [user, setUser] = useState(() => localStorage.getItem('authTokens') ? jwtDecode(JSON.parse(localStorage.getItem('authTokens')).access) : null);
+  const [authTokens, setAuthTokens] = useState(() => {
+    const tokens = localStorage.getItem('authTokens');
+    return tokens ? JSON.parse(tokens) : null;
+  });
+
+  const [user, setUser] = useState(() => {
+    const tokens = localStorage.getItem('authTokens');
+    if (tokens) {
+      const accessToken = JSON.parse(tokens).access_token;
+      if (accessToken) {
+        return jwtDecode(accessToken);
+      }
+    }
+    return null;
+  });
 
   const loginUser = async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
     if (response.status === 200) {
       setAuthTokens(response.data);
-      setUser(jwtDecode(response.data.access));
+      setUser(jwtDecode(response.data.access_token));
       localStorage.setItem('authTokens', JSON.stringify(response.data));
     }
     return response;
   };
 
   const registerUser = async (name, email, password, role) => {
-    const response = await api.post('/auth/register', { name, email, password, role });
-    return response;
+    return await api.post('/auth/register', { name, email, password, role });
   };
 
   const logoutUser = () => {
@@ -39,7 +51,9 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (authTokens) {
-      setUser(jwtDecode(authTokens.access));
+      setUser(jwtDecode(authTokens.access_token));
+    } else {
+      setUser(null);
     }
   }, [authTokens]);
 
